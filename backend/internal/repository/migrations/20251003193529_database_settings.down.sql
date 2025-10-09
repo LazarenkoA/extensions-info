@@ -1,0 +1,11 @@
+BEGIN;
+
+DROP TABLE IF EXISTS extensions_info;
+DROP TABLE IF EXISTS jobs;
+DROP TABLE IF EXISTS conf_info;
+DROP TABLE IF EXISTS database_info;
+
+DROP TYPE IF EXISTS db_state;
+DROP TYPE IF EXISTS job_state;
+
+COMMIT;
