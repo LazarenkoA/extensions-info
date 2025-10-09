@@ -6,14 +6,35 @@ type ObjectType string
 type Redefinition string
 
 const (
-	ObjectTypeUndefined    ObjectType = ""
-	ObjectTypeConf         ObjectType = "configuration"
-	ObjectTypeDocument     ObjectType = "document"
-	ObjectTypeCatalog      ObjectType = "catalog"
-	ObjectTypeCommonModule ObjectType = "commonModule"
-	ObjectTypeFunction     ObjectType = "function"
-
-	// ....
+	ObjectTypeUndefined              ObjectType = ""
+	ObjectTypeConf                   ObjectType = "configuration"
+	ObjectTypeLanguage               ObjectType = "language"
+	ObjectTypeSubsystems             ObjectType = "subsystem"
+	ObjectTypeRoles                  ObjectType = "role"
+	ObjectTypeCommonModules          ObjectType = "commonModule"
+	ObjectTypeExchangePlans          ObjectType = "exchangePlan"
+	ObjectTypeHTTPServices           ObjectType = "httpService"
+	ObjectTypeEventSubscriptions     ObjectType = "eventSubscription"
+	ObjectTypeScheduledJobs          ObjectType = "scheduledJob"
+	ObjectTypeDefinedTypes           ObjectType = "definedType"
+	ObjectTypeConstants              ObjectType = "constant"
+	ObjectTypeCatalogs               ObjectType = "catalog"
+	ObjectTypeDocuments              ObjectType = "document"
+	ObjectTypeDocumentJournals       ObjectType = "documentJournal"
+	ObjectTypeEnums                  ObjectType = "enum"
+	ObjectTypeReports                ObjectType = "report"
+	ObjectTypeDataProcessors         ObjectType = "dataProcessor"
+	ObjectTypeInformationRegisters   ObjectType = "informationRegister"
+	ObjectTypeAccumulationRegisters  ObjectType = "accumulationRegister"
+	ObjectTypeChartsOfCharacteristic ObjectType = "chartOfCharacteristicTypes"
+	ObjectTypeChartsOfAccounts       ObjectType = "chartOfAccounts"
+	ObjectTypeAccountingRegisters    ObjectType = "accountingRegister"
+	ObjectTypeChartsOfCalculation    ObjectType = "chartOfCalculationTypes"
+	ObjectTypeCalculationRegisters   ObjectType = "calculationRegister"
+	ObjectTypeBusinessProcesses      ObjectType = "businessProcess"
+	ObjectTypeTasks                  ObjectType = "task"
+	ObjectTypeFunction               ObjectType = "function"
+	// и остальное
 )
 
 const (
@@ -67,6 +88,7 @@ type MetadataInfo struct {
 	Funcs        []FuncInfo
 	Children     []*MetadataInfo
 	ExtensionIDs []int32
+	Borrowed     bool
 }
 
 type FuncInfo struct {

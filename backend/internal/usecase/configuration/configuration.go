@@ -45,33 +45,32 @@ func (c *Configuration) getConfigurationInfo(ctx *gin.Context) {
 	// заполняем мок данными
 	info.MetadataTree = &models.MetadataInfo{
 		ObjectName: "Конфигурация такая-то",
-		Path:       "",
 		Type:       models.ObjectTypeConf,
 		Children: []*models.MetadataInfo{
 			{
 				ObjectName: "Документ1",
-				Type:       models.ObjectTypeDocument,
+				Type:       models.ObjectTypeDocuments,
 			},
 			{
 				ObjectName:   "Документ2",
-				Type:         models.ObjectTypeDocument,
+				Type:         models.ObjectTypeDocuments,
 				ExtensionIDs: []int32{1, 2},
 			},
 			{
 				ObjectName:   "Физ лица",
-				Type:         models.ObjectTypeCatalog,
+				Type:         models.ObjectTypeCatalogs,
 				ExtensionIDs: []int32{1},
 			},
 			{
 				ObjectName: "ОбщегоНазначения",
-				Type:       models.ObjectTypeCommonModule,
+				Type:       models.ObjectTypeCommonModules,
 				Funcs: []models.FuncInfo{
 					{
 						RedefinitionMethod: models.RedefinitionAfter,
 						Name:               "Тест",
 						Code:               "// тут код",
 						Type:               models.ObjectTypeFunction,
-						ExtensionIDs:       []int32{1, 2},
+						ExtensionIDs:       []int32{1, 5},
 					},
 					{
 						RedefinitionMethod: models.RedefinitionChangeControl,

@@ -121,11 +121,6 @@ func (a *Analyzer1C) confAnalyzing(ctx context.Context, dbID int32) (int32, stri
 	return confID, extDir, nil
 }
 
-func (a *Analyzer1C) metadataAnalyzing(extDir string, confID int32) error {
-
-	return nil
-}
-
 func (a *Analyzer1C) stateDone(ctx context.Context, dbID int32, log logWriter) (err error) {
 	if err = a.repo.SetBDState(ctx, dbID, databases.DbStateDone, time.Now()); err == nil {
 		log("new_state", databases.DbStateDone)

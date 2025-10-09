@@ -43,6 +43,11 @@ func main() {
 	analyzer := onec.NewAnalyzer1C(repo)
 	job := jobs.New(repo, analyzer, ws)
 
+	log := analyzer.RunAnalyzing(ctx, 1) //todo
+	for l := range log {
+		_ = l
+	}
+
 	mainApp := app.NewExtensionsInfo(cfg)
 
 	go shutdown(cancel)

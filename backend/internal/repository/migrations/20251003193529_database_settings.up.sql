@@ -22,6 +22,7 @@ CREATE TABLE IF NOT EXISTS conf_info (
 );
 
 CREATE TABLE IF NOT EXISTS extensions_info (
+    id SERIAL,
     conf_id integer REFERENCES conf_info(id) ON DELETE CASCADE,
     name TEXT NOT NULL,
     description TEXT,
