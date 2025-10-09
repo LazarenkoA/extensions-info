@@ -1,0 +1,55 @@
+.icon-root {
+    content: url("icons/root.svg");
+    margin-right: 5px;
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+}
+
+.icon-default {
+    content: url("icons/default.png");
+    margin-right: 5px;
+    display: inline-block;
+    width: 15px;
+    height: 15px;
+}
+
+.icon-enum {
+    content: url("icons/enum.png");
+    margin-right: 5px;
+    display: inline-block;
+    width: 15px;
+    height: 15px;
+}
+
+.icon-role {
+    content: url("icons/role.png");
+    margin-right: 5px;
+    display: inline-block;
+    width: 15px;
+    height: 15px;
+}
+
+.icon-document{
+    content: url("icons/document.png");
+    margin-right: 5px;
+    display: inline-block;
+    width: 15px;
+    height: 15px;
+}
+
+.icon-catalog {
+    content: url("icons/catalog.png");
+    margin-right: 5px;
+    display: inline-block;
+    width: 15px;
+    height: 15px;
+}
+
+.icon-func {
+    content: url("icons/func.png");
+    margin-right: 5px;
+    display: inline-block;
+    width: 15px;
+    height: 15px;
+}

@@ -2,8 +2,10 @@ package configuration
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"log"
 	"net/http"
 	"strconv"
 	"your-app/internal/models"
@@ -12,6 +14,7 @@ import (
 
 type repo interface {
 	GetConfigurationInfo(ctx context.Context, dbID int32) (*models.ConfigurationInfo, error)
+	GetMetadata(ctx context.Context, confID int32) ([]byte, error)
 }
 
 type Configuration struct {
@@ -42,47 +45,16 @@ func (c *Configuration) getConfigurationInfo(ctx *gin.Context) {
 		return
 	}
 
-	// заполняем мок данными
-	info.MetadataTree = &models.MetadataInfo{
-		ObjectName: "Конфигурация такая-то",
-		Type:       models.ObjectTypeConf,
-		Children: []*models.MetadataInfo{
-			{
-				ObjectName: "Документ1",
-				Type:       models.ObjectTypeDocuments,
-			},
-			{
-				ObjectName:   "Документ2",
-				Type:         models.ObjectTypeDocuments,
-				ExtensionIDs: []int32{1, 2},
-			},
-			{
-				ObjectName:   "Физ лица",
-				Type:         models.ObjectTypeCatalogs,
-				ExtensionIDs: []int32{1},
-			},
-			{
-				ObjectName: "ОбщегоНазначения",
-				Type:       models.ObjectTypeCommonModules,
-				Funcs: []models.FuncInfo{
-					{
-						RedefinitionMethod: models.RedefinitionAfter,
-						Name:               "Тест",
-						Code:               "// тут код",
-						Type:               models.ObjectTypeFunction,
-						ExtensionIDs:       []int32{1, 5},
-					},
-					{
-						RedefinitionMethod: models.RedefinitionChangeControl,
-						Name:               "Тест2",
-						Code:               "// тут код2",
-						Type:               models.ObjectTypeFunction,
-						ExtensionIDs:       []int32{1},
-					},
-				},
-			},
-		},
+	data, err := c.repo.GetMetadata(ctx, int32(id))
+	if err != nil {
+		log.Println(err)
 	}
+
+	info.MetadataTree = &models.MetadataInfo{
+		ObjectName: info.Name,
+		Type:       models.ObjectTypeConf,
+	}
+	_ = json.Unmarshal(data, &info.MetadataTree.Children)
 
 	ctx.JSON(http.StatusOK, gin.H{
 		"data": info,

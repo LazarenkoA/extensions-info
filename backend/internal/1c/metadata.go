@@ -2,8 +2,10 @@ package onec
 
 import (
 	"context"
+	"encoding/json"
 	"encoding/xml"
 	"github.com/beevik/etree"
+	"github.com/google/uuid"
 	"github.com/pkg/errors"
 	"log"
 	"os"
@@ -13,8 +15,6 @@ import (
 )
 
 func (a *Analyzer1C) metadataAnalyzing(extDir string, confID int32) error {
-	defer os.RemoveAll(extDir)
-
 	dirs, err := os.ReadDir(extDir)
 	if err != nil {
 		return err
@@ -38,8 +38,8 @@ func (a *Analyzer1C) metadataAnalyzing(extDir string, confID int32) error {
 		metadataInfo = merge(metadataInfo, convToMetadataInfo(confStr, filepath.Join(extDir, dir.Name())), extensions[dir.Name()])
 	}
 
-	_ = metadataInfo
-	return nil
+	data, _ := json.Marshal(metadataInfo)
+	return a.repo.SetMetadata(context.Background(), confID, data)
 }
 
 func parseConfigurationFile(path string) (*ConfigurationStruct, error) {
@@ -132,7 +132,11 @@ func readExtensionObject(objectName string, objectType models.ObjectType, dir st
 	return &models.MetadataInfo{
 		ObjectName: objectName,
 		Type:       objectType,
-		Borrowed:   elemBorrowed != nil,
+		Borrowed:   utils.Ptr(elemBorrowed != nil),
+		Path:       f.Name(),
+		ID:         uuid.NewString(),
+		Changes_:   []string{"Изменен реквизит", "добавлен чет"},
+		Changes:    map[int32][]string{},
 	}
 }
 
@@ -142,12 +146,14 @@ func merge(metadataInfoPrev, metadataInfoNew []*models.MetadataInfo, extID int32
 		for j, mdPrev := range metadataInfoPrev {
 			if md.Type == mdPrev.Type && md.ObjectName == mdPrev.ObjectName {
 				metadataInfoPrev[j].ExtensionIDs = append(metadataInfoPrev[j].ExtensionIDs, extID)
+				metadataInfoPrev[j].Changes[extID] = append(metadataInfoPrev[j].Changes[extID], md.Changes_...)
 				exist = true
 				break
 			}
 		}
 
 		if !exist {
+			md.Changes[extID] = append(md.Changes[extID], md.Changes_...)
 			md.ExtensionIDs = append(md.ExtensionIDs, extID)
 			metadataInfoPrev = append(metadataInfoPrev, md)
 		}

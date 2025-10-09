@@ -50,7 +50,7 @@ func (j *Job) Register(route *gin.RouterGroup) {
 	route.GET("/getCronSettings", j.getCronSettings)
 	route.POST("/setCronSettings/:db_id", j.setCronSettings)
 	route.DELETE("/deleteCronSettings/:db_id", j.deleteCronSettings)
-	route.POST("/startManualAnalysis/:db_id", j.startAnalysis)
+	route.POST("/startManualAnalysis/:db_id", j.startManualAnalysis)
 
 	go j.runJobs()
 }
@@ -113,7 +113,7 @@ func (j *Job) deleteCronSettings(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{})
 }
 
-func (j *Job) startAnalysis(ctx *gin.Context) {
+func (j *Job) startManualAnalysis(ctx *gin.Context) {
 	idStr := ctx.Param("db_id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {

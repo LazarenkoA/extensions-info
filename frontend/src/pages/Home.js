@@ -5,6 +5,7 @@ import MainContent from  '../components/MainContent';
 import { DatabaseProvider } from "../components/ContexDatabaset";
 import {WebSocketProvider} from '../services/contexWebSocket';
 import './Home.css';
+import './Icon.css'
 
 const Home = () => {
   return (

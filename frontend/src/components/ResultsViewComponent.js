@@ -47,7 +47,7 @@ const ResultsView = ({ conf, database }) => {
                         <div className="config-detail-label">Установленные расширения:</div>
                         <div className="extensions-list">
                             {conf?.Extensions?.map((ext, index) => (
-                                <span key={index} className="extension-tag">{ext.Name} {ext.Version != '' ? `(version: ${ext.Version})` : ''}</span>
+                                <span key={index} className="extension-tag">{ext.Name} {ext.Version != '' ? `(v: ${ext.Version})` : ''}</span>
                             ))}
                         </div>
                     </div>
@@ -67,10 +67,9 @@ const ResultsView = ({ conf, database }) => {
 
                         {selectedItem && (
                             <DetailsPanel
+                                changes={selectedItem.Changes}
                                 selectedItem={selectedItem}
                                 extensions={conf.Extensions?.filter(ext => selectedItem.ExtensionIDs && selectedItem.ExtensionIDs?.includes(ext.ID))}
-                                // database={activeDatabase}
-                                // onFunctionClick={handleFunctionClick}
                             />
                         )}
                     </div>

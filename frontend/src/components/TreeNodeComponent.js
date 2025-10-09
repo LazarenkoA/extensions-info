@@ -1,8 +1,26 @@
 import React from "react";
 
 const { useState, useEffect, useRef } = React;
+const icon = {
+    'configuration': 'root',
+    'function': 'func',
+    'commonModule': '⚙️',
+    'document': 'document',
+    'catalog': 'catalog',
+    'constant': 'enum',
+    'role': 'role'
+}
+const ruNames = {
+    'configuration': 'Конфигурация',
+    'function': 'Метод',
+    'commonModule': 'Общий модуль',
+    'document': 'Документ',
+    'catalog': 'Справочник',
+    'constant': 'Перечисление',
+    'role': 'Роль'
+}
 
-export const DetailsPanel = ({ selectedItem, extensions, onFunctionClick }) => {
+export const DetailsPanel = ({ selectedItem, extensions, changes}) => {
     if (!selectedItem) {
         return (
             <div className="details-panel hidden">
@@ -25,19 +43,19 @@ export const DetailsPanel = ({ selectedItem, extensions, onFunctionClick }) => {
         return (
             <div className="details-panel">
                 <div className="details-header">
-                    <h3 className="details-title">Переопределения: {objectData.ObjectName}</h3>
+                    <h3 className="details-title">{ruNames[objectData.Type] || objectData.Type}: {objectData.ObjectName}</h3>
                 </div>
                 <div className="details-content">
                     {extensions && extensions.map((ext, index) => (
                         <div key={index} className="extension-section">
                             <div className="extension-header">
-                                <h4 className="extension-name">{ext.Name} (v{ext.Version})</h4>
+                                <h4 className="extension-name">{ext.Name} {ext.Version != '' ? `(v: ${ext.Version})` : ''}</h4>
                             </div>
                             <div className="extension-body">
-                            <ul className="changes-list">
-                                    {/*{ext.changes.map((change, changeIndex) => (*/}
-                                    {/*    <li key={changeIndex}>{change}</li>*/}
-                                    {/*))}*/}
+                                <ul className="changes-list">
+                                    {changes[ext.ID]?.map((change, changeIndex) => (
+                                        <li key={changeIndex}>{change}</li>
+                                    ))}
                                 </ul>
                             </div>
                         </div>
@@ -129,47 +147,36 @@ const TreeNode = ({ node, level = 0, selectedItem, setSelectedItem }) => {
         return null
     }
 
-
     const hasChildren = node.Children && node.Children.length > 0;
     const hasFunctions = node.Funcs && node.Funcs.length > 0;
-    //const hasModules = node.modules && node.modules.length > 0;
-
-    const icon = {
-        'function': '📐',
-        'folder': '📁',
-        'commonModule': '⚙️',
-        'document': '📑',
-        'catalog': '📝',
-        'configuration': '🧩'
-    }
 
     expanded = expanded || level == 0 // первый уровент всегда открыт
+
 
     return (
         <div>
             <div className="tree-node">
                 <div
-                    className={`tree-item ${expanded ? 'expanded' : ''} ${selectedItem ? 'selected' : ''}`}
+                    className={`tree-item ${expanded ? 'expanded' : ''} ${selectedItem && selectedItem.ID == node.ID ? 'selected' : ''}`}
                     onClick={() => setSelectedItem(node)}
                 >
                     <div className="tree-toggle" onClick={handleToggle}>
                         {(hasChildren || hasFunctions) ? (expanded ? '▼' : '▶') : ''}
                     </div>
-                    <div className={`tree-icon`}>{icon[node.Type]}</div>
+                    <div className={`icon-${icon[node.Type] || 'default'}`}></div>
                     <div className="tree-label">
                         {node.ObjectName || node.Name || node.Type}
                     </div>
-                    {node.status && (
-                        <div className={`tree-status ${node.status}`}>
-                            {node.status === 'modified' ? 'Изменен' :
-                                node.status === 'added' ? 'Добавлен' : 'Удален'}
-                        </div>
-                    )}
+
+                    {node.Borrowed != undefined && (<div className={`tree-status ${node.Borrowed ? 'modified':'added'}`}>
+                        {node.Borrowed ? 'Изменен' : 'Добавлен' }
+                    </div>)}
+
                 </div>
 
                 {expanded  && (
                     <div className="tree-children">
-                        {hasChildren && node.Children.map((child, index) => (
+                        {hasChildren && node.Children?.sort((a, b) => b.Type.localeCompare(a.Type)).map((child, index) => (
                             <TreeNode
                                 key={index}
                                 node={child}
@@ -178,14 +185,6 @@ const TreeNode = ({ node, level = 0, selectedItem, setSelectedItem }) => {
                                 setSelectedItem={setSelectedItem}
                             />
                         ))}
-                        {/*{hasModules && node.modules.map((module, index) => (*/}
-                        {/*    <TreeNode*/}
-                        {/*        key={index}*/}
-                        {/*        node={module}*/}
-                        {/*        level={level + 1}*/}
-                        {/*        type="module"*/}
-                        {/*    />*/}
-                        {/*))}*/}
                         {hasFunctions && node.Funcs.map((func, index) => (
                             <TreeNode
                                 key={index}

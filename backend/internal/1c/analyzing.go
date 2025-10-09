@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"github.com/pkg/errors"
+	"os"
 	"time"
 	"your-app/internal/models"
 	"your-app/internal/usecase/databases"
@@ -18,6 +19,7 @@ type repo interface {
 	StoreConfigurationInfo(ctx context.Context, dbID int32, confInfo *ConfigurationInfo) (int32, error)
 	StoreExtensionsInfo(ctx context.Context, confID int32, confInfo []ConfigurationInfo) error
 	GetExtensionsInfo(ctx context.Context, confID int32) ([]ConfigurationInfo, error)
+	SetMetadata(ctx context.Context, confID int32, value []byte) error
 }
 
 type Analyzer1C struct {
@@ -65,6 +67,7 @@ func (a *Analyzer1C) RunAnalyzing(ctx context.Context, dbID int32) chan string {
 			return a.metadataAnalyzing(extDir.(string), confID.(int32))
 		})
 		step.add("Анализ кода расширений", func() error {
+			defer os.RemoveAll(step.state["extDir"].(string))
 			time.Sleep(time.Second)
 			log("log", "\tчто-то делаем")
 			time.Sleep(time.Second)

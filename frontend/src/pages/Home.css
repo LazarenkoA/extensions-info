@@ -791,6 +791,10 @@ select.form-control {
   overflow-y: auto;
 }
 
+.details-header {
+  padding-left: var(--space-16);
+}
+
 .extension-section {
   background-color: var(--color-background);
   border: 1px solid var(--color-border);
@@ -1523,6 +1527,11 @@ select.form-control {
   transition: all var(--duration-normal) var(--ease-standard);
 }
 
+.tree-item.selected {
+  background-color: var(--color-bg-1);
+  border: 1px solid var(--color-primary);
+}
+
 .tree-item:hover {
   background-color: var(--color-secondary);
 }
@@ -1587,10 +1596,6 @@ select.form-control {
   color: var(--color-success);
 }
 
-.tree-status.deleted {
-  background-color: rgba(var(--color-error-rgb), 0.2);
-  color: var(--color-error);
-}
 
 .tree-children {
   margin-left: var(--space-24);

@@ -14,6 +14,7 @@ func (p *PG) GetConfigurationInfo(ctx context.Context, dbID int32) (*models.Conf
 		Columns(`case when ext.conf_id is not null then
 							   jsonb_agg(
 								jsonb_build_object(
+										'ID', ext.id,
 										'ConfID', ext.conf_id,
 										'Description', ext.description,
 										'Version', ext.version,
