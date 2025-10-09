@@ -83,7 +83,6 @@ type ExtensionsInfo struct {
 
 type MetadataInfo struct {
 	ObjectName   string
-	Path         string
 	Type         ObjectType
 	Funcs        []FuncInfo
 	Children     []*MetadataInfo

@@ -3,6 +3,7 @@ package onec
 import "encoding/xml"
 
 type ConfigurationInfo struct {
+	ID      int32
 	Name    string
 	Synonym string
 	Version string

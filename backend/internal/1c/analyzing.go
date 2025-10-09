@@ -17,6 +17,7 @@ type repo interface {
 	GetAppSettings(ctx context.Context) (*models.AppSettings, error)
 	StoreConfigurationInfo(ctx context.Context, dbID int32, confInfo *ConfigurationInfo) (int32, error)
 	StoreExtensionsInfo(ctx context.Context, confID int32, confInfo []ConfigurationInfo) error
+	GetExtensionsInfo(ctx context.Context, confID int32) ([]ConfigurationInfo, error)
 }
 
 type Analyzer1C struct {

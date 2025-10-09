@@ -3,7 +3,6 @@ package onec
 import (
 	"bytes"
 	"context"
-	"github.com/beevik/etree"
 	"github.com/pkg/errors"
 	"golang.org/x/text/encoding/unicode"
 	"golang.org/x/text/transform"
@@ -15,7 +14,6 @@ import (
 	"regexp"
 	"strings"
 	"time"
-	"your-app/internal/utils"
 )
 
 func loadConfigurationInfo(binPath, connectionString string) (*ConfigurationInfo, error) {
@@ -49,33 +47,6 @@ func loadConfigurationInfo(binPath, connectionString string) (*ConfigurationInfo
 	}
 
 	return readConfigurationFile(workDir)
-}
-
-func readConfigurationFile(dir string) (*ConfigurationInfo, error) {
-	f, err := os.Open(filepath.Join(dir, "Configuration.xml"))
-	if err != nil {
-		return nil, errors.Wrap(err, "open Configuration.xml error")
-	}
-	defer f.Close()
-
-	doc := etree.NewDocument()
-	_, err = doc.ReadFrom(f)
-	if err != nil {
-		return nil, errors.Wrap(err, "read Configuration.xml error")
-	}
-
-	elemName := doc.FindElement("/MetaDataObject/Configuration/Properties/Name")
-	elemSynonym := doc.FindElement("/MetaDataObject/Configuration/Properties/Synonym/v8:item/v8:content")
-	elemVersion := doc.FindElement("/MetaDataObject/Configuration/Properties/Version")
-	elemVendor := doc.FindElement("/MetaDataObject/Configuration/Properties/Vendor")
-	elemPurpose := doc.FindElement("/MetaDataObject/Configuration/Properties/ConfigurationExtensionPurpose")
-	return &ConfigurationInfo{
-		Name:    utils.Ptr(utils.Opt[etree.Element](elemName)).Text(),
-		Synonym: utils.Ptr(utils.Opt[etree.Element](elemSynonym)).Text(),
-		Version: utils.Ptr(utils.Opt[etree.Element](elemVersion)).Text(),
-		Vendor:  utils.Ptr(utils.Opt[etree.Element](elemVendor)).Text(),
-		Purpose: utils.Ptr(utils.Opt[etree.Element](elemPurpose)).Text(),
-	}, nil
 }
 
 func run(ctx context.Context, binPath string, params []string) error {

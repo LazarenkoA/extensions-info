@@ -1,18 +1,29 @@
 package onec
 
 import (
+	"context"
 	"encoding/xml"
-	"errors"
+	"github.com/beevik/etree"
+	"github.com/pkg/errors"
 	"log"
 	"os"
 	"path/filepath"
 	"your-app/internal/models"
+	"your-app/internal/utils"
 )
 
 func (a *Analyzer1C) metadataAnalyzing(extDir string, confID int32) error {
+	defer os.RemoveAll(extDir)
+
 	dirs, err := os.ReadDir(extDir)
 	if err != nil {
 		return err
+	}
+
+	extensionsRep, _ := a.repo.GetExtensionsInfo(context.Background(), confID)
+	extensions := make(map[string]int32, len(extensionsRep))
+	for _, e := range extensionsRep {
+		extensions[e.Name] = e.ID
 	}
 
 	var metadataInfo []*models.MetadataInfo
@@ -24,7 +35,7 @@ func (a *Analyzer1C) metadataAnalyzing(extDir string, confID int32) error {
 			continue
 		}
 
-		metadataInfo = convToMetadataInfo(confStr)
+		metadataInfo = merge(metadataInfo, convToMetadataInfo(confStr, filepath.Join(extDir, dir.Name())), extensions[dir.Name()])
 	}
 
 	_ = metadataInfo
@@ -57,7 +68,7 @@ func parseConfigurationFile(path string) (*ConfigurationStruct, error) {
 	return nil, errors.New("no ChildObjects found in xml")
 }
 
-func convToMetadataInfo(cfg *ConfigurationStruct) []*models.MetadataInfo {
+func convToMetadataInfo(cfg *ConfigurationStruct, rootDir string) []*models.MetadataInfo {
 	var metadataInfo []*models.MetadataInfo
 
 	typeHandlers := []struct {
@@ -66,7 +77,7 @@ func convToMetadataInfo(cfg *ConfigurationStruct) []*models.MetadataInfo {
 		dir   string
 	}{
 		{cfg.Subsystems, models.ObjectTypeSubsystems, "Subsystems"},
-		{cfg.Roles, models.ObjectTypeRoles, "ObjectTypeRoles"},
+		{cfg.Roles, models.ObjectTypeRoles, "Roles"},
 		{cfg.CommonModules, models.ObjectTypeCommonModules, "CommonModules"},
 		{cfg.ExchangePlans, models.ObjectTypeExchangePlans, "ExchangePlans"},
 		{cfg.HTTPServices, models.ObjectTypeHTTPServices, "HTTPServices"},
@@ -93,15 +104,81 @@ func convToMetadataInfo(cfg *ConfigurationStruct) []*models.MetadataInfo {
 
 	for _, h := range typeHandlers {
 		if len(h.names) > 0 {
-			for _, item := range h.names {
-				metadataInfo = append(metadataInfo, &models.MetadataInfo{
-					ObjectName: item,
-					Type:       h.t,
-					Path:       h.dir,
-				})
+			for _, name := range h.names {
+				metadataInfo = append(metadataInfo, readExtensionObject(name, h.t, filepath.Join(rootDir, h.dir)))
 			}
 		}
 	}
 
 	return metadataInfo
+}
+
+func readExtensionObject(objectName string, objectType models.ObjectType, dir string) *models.MetadataInfo {
+	f, err := os.Open(filepath.Join(dir, objectName+".xml"))
+	if err != nil {
+		log.Println(errors.Wrap(err, "open object file"))
+		return new(models.MetadataInfo)
+	}
+	defer f.Close()
+
+	doc := etree.NewDocument()
+	_, err = doc.ReadFrom(f)
+	if err != nil {
+		log.Println(errors.Wrap(err, "read xml"))
+		return new(models.MetadataInfo)
+	}
+
+	elemBorrowed := doc.FindElement("/MetaDataObject/*/Properties/ExtendedConfigurationObject")
+	return &models.MetadataInfo{
+		ObjectName: objectName,
+		Type:       objectType,
+		Borrowed:   elemBorrowed != nil,
+	}
+}
+
+func merge(metadataInfoPrev, metadataInfoNew []*models.MetadataInfo, extID int32) []*models.MetadataInfo {
+	for _, md := range metadataInfoNew {
+		exist := false
+		for j, mdPrev := range metadataInfoPrev {
+			if md.Type == mdPrev.Type && md.ObjectName == mdPrev.ObjectName {
+				metadataInfoPrev[j].ExtensionIDs = append(metadataInfoPrev[j].ExtensionIDs, extID)
+				exist = true
+				break
+			}
+		}
+
+		if !exist {
+			md.ExtensionIDs = append(md.ExtensionIDs, extID)
+			metadataInfoPrev = append(metadataInfoPrev, md)
+		}
+	}
+
+	return metadataInfoPrev
+}
+
+func readConfigurationFile(dir string) (*ConfigurationInfo, error) {
+	f, err := os.Open(filepath.Join(dir, "Configuration.xml"))
+	if err != nil {
+		return nil, errors.Wrap(err, "open Configuration.xml error")
+	}
+	defer f.Close()
+
+	doc := etree.NewDocument()
+	_, err = doc.ReadFrom(f)
+	if err != nil {
+		return nil, errors.Wrap(err, "read Configuration.xml error")
+	}
+
+	elemName := doc.FindElement("/MetaDataObject/Configuration/Properties/Name")
+	elemSynonym := doc.FindElement("/MetaDataObject/Configuration/Properties/Synonym/v8:item/v8:content")
+	elemVersion := doc.FindElement("/MetaDataObject/Configuration/Properties/Version")
+	elemVendor := doc.FindElement("/MetaDataObject/Configuration/Properties/Vendor")
+	elemPurpose := doc.FindElement("/MetaDataObject/Configuration/Properties/ConfigurationExtensionPurpose")
+	return &ConfigurationInfo{
+		Name:    utils.Ptr(utils.Opt[etree.Element](elemName)).Text(),
+		Synonym: utils.Ptr(utils.Opt[etree.Element](elemSynonym)).Text(),
+		Version: utils.Ptr(utils.Opt[etree.Element](elemVersion)).Text(),
+		Vendor:  utils.Ptr(utils.Opt[etree.Element](elemVendor)).Text(),
+		Purpose: utils.Ptr(utils.Opt[etree.Element](elemPurpose)).Text(),
+	}, nil
 }

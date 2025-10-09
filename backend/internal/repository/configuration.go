@@ -89,3 +89,20 @@ func (p *PG) StoreExtensionsInfo(ctx context.Context, confID int32, confInfo []o
 
 	return nil
 }
+
+func (p *PG) GetExtensionsInfo(ctx context.Context, confID int32) ([]onec.ConfigurationInfo, error) {
+	var result []onec.ConfigurationInfo
+
+	builder := sq.Select("id", "name", "description as synonym", "version", "purpose").
+		From("extensions_info").
+		Where(sq.Eq{"conf_id": confID}).
+		PlaceholderFormat(sq.Dollar)
+
+	query, args, _ := builder.ToSql()
+	err := pgxscan.Select(ctx, p.pool, &result, query, args...)
+	if err != nil {
+		return result, errors.Wrap(err, "query error")
+	}
+
+	return result, err
+}
