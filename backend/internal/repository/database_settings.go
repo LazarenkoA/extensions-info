@@ -2,11 +2,11 @@ package repository
 
 import (
 	"context"
+	"github.com/LazarenkoA/extensions-info/internal/models"
 	sq "github.com/Masterminds/squirrel"
 	"github.com/georgysavva/scany/v2/pgxscan"
 	"github.com/pkg/errors"
 	"time"
-	"your-app/internal/models"
 )
 
 func (p *PG) GetDataBaseSettings(ctx context.Context) ([]models.DatabaseSettings, error) {
@@ -31,7 +31,7 @@ func (p *PG) GetDataBaseSettings(ctx context.Context) ([]models.DatabaseSettings
 }
 
 func (p *PG) GetDataBaseByID(ctx context.Context, id int32) (*models.DatabaseSettings, error) {
-	builder := sq.Select("db.id", "db.connection_string", "db.status", "db.name", "db.last_check").
+	builder := sq.Select("db.id", "db.connection_string", "db.status", "db.name", "db.last_check", "db.username", "db.password").
 		From("database_info db").
 		Where(sq.Eq{"id": id}).
 		PlaceholderFormat(sq.Dollar)

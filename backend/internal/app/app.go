@@ -2,12 +2,12 @@ package app
 
 import (
 	"context"
+	"github.com/LazarenkoA/extensions-info/internal/config"
+	"github.com/LazarenkoA/extensions-info/internal/middleware"
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
 	"time"
-	"your-app/internal/config"
-	"your-app/internal/middleware"
 )
 
 type UseCases interface {

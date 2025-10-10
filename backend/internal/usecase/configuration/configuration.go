@@ -4,12 +4,12 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/LazarenkoA/extensions-info/internal/models"
+	"github.com/LazarenkoA/extensions-info/internal/usecase"
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
 	"strconv"
-	"your-app/internal/models"
-	"your-app/internal/usecase"
 )
 
 type repo interface {

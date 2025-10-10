@@ -4,14 +4,17 @@ import (
 	"context"
 	"encoding/json"
 	"encoding/xml"
+	"fmt"
+	"github.com/LazarenkoA/extensions-info/internal/models"
+	"github.com/LazarenkoA/extensions-info/internal/utils"
+	"github.com/antchfx/xmlquery"
 	"github.com/beevik/etree"
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
 	"log"
 	"os"
 	"path/filepath"
-	"your-app/internal/models"
-	"your-app/internal/utils"
+	"strings"
 )
 
 func (a *Analyzer1C) metadataAnalyzing(extDir string, confID int32) error {
@@ -42,11 +45,34 @@ func (a *Analyzer1C) metadataAnalyzing(extDir string, confID int32) error {
 	return a.repo.SetMetadata(context.Background(), confID, data)
 }
 
+func (a *Analyzer1C) codeAnalyzing(extDir string, confID int32) error {
+	// получаем из БД структуру метаданных ранее проанализированную
+	// нас интересуют только заимствованные объекты, будем проверять их
+
+	data, err := a.repo.GetMetadata(context.Background(), confID)
+	if err != nil {
+		return errors.Wrap(err, "couldn't get the configuration structure")
+	}
+
+	var metadata []*models.MetadataInfo
+	_ = json.Unmarshal(data, &metadata)
+
+	for _, md := range metadata {
+		if utils.PtrToVal(md.Borrowed) {
+			fmt.Println(1)
+		}
+	}
+
+	return nil
+}
+
 func parseConfigurationFile(path string) (*ConfigurationStruct, error) {
 	f, err := os.Open(path)
 	if err != nil {
 		return nil, err
 	}
+
+	defer f.Close()
 
 	decoder := xml.NewDecoder(f)
 	for {
@@ -121,23 +147,116 @@ func readExtensionObject(objectName string, objectType models.ObjectType, dir st
 	}
 	defer f.Close()
 
-	doc := etree.NewDocument()
-	_, err = doc.ReadFrom(f)
+	doc, err := xmlquery.Parse(f)
 	if err != nil {
 		log.Println(errors.Wrap(err, "read xml"))
 		return new(models.MetadataInfo)
 	}
 
-	elemBorrowed := doc.FindElement("/MetaDataObject/*/Properties/ExtendedConfigurationObject")
+	elemBorrowed := doc.SelectElement("/MetaDataObject/*/Properties/ExtendedConfigurationObject")
 	return &models.MetadataInfo{
 		ObjectName: objectName,
 		Type:       objectType,
 		Borrowed:   utils.Ptr(elemBorrowed != nil),
-		Path:       f.Name(),
 		ID:         uuid.NewString(),
-		Changes_:   []string{"Изменен реквизит", "добавлен чет"},
+		Changes_:   changes(dir, doc),
 		Changes:    map[int32][]string{},
 	}
+}
+
+func changes(rootDir string, doc *xmlquery.Node) []string {
+	var result []string
+
+	elemName := doc.SelectElement("/MetaDataObject/*/Properties/Name/text()")
+	// реквизиты
+	{
+		addAttr, extAttr := changesElement(doc, "/MetaDataObject/*/ChildObjects/Attribute/Properties/Name")
+		if len(addAttr) > 0 || len(extAttr) > 0 {
+			var txt strings.Builder
+			if len(addAttr) > 0 || len(extAttr) > 0 {
+				txt.WriteString("Реквизиты:\n")
+			}
+			if len(addAttr) > 0 {
+				txt.WriteString("- Добавленные: " + strings.Join(addAttr, ", ") + "\n")
+			}
+			if len(extAttr) > 0 {
+				txt.WriteString("- Заимствованные: " + strings.Join(extAttr, ", ") + "\n")
+			}
+
+			result = append(result, txt.String())
+		}
+	}
+
+	// таб части
+	{
+		addAttr, extAttr := changesElement(doc, "/MetaDataObject/*/ChildObjects/TabularSection/Properties/Name")
+		if len(addAttr) > 0 || len(extAttr) > 0 {
+			var txt strings.Builder
+			if len(addAttr) > 0 || len(extAttr) > 0 {
+				txt.WriteString("Таб. часть:\n")
+			}
+			if len(addAttr) > 0 {
+				txt.WriteString("- Добавленные: " + strings.Join(addAttr, ", ") + "\n")
+			}
+			if len(extAttr) > 0 {
+				txt.WriteString("- Заимствованные: " + strings.Join(extAttr, ", ") + "\n")
+			}
+
+			result = append(result, txt.String())
+		}
+	}
+
+	// формы
+	{
+		var txt strings.Builder
+		elemForms := doc.SelectElements("/MetaDataObject/*/ChildObjects/Form/text()")
+		if len(elemForms) > 0 {
+			txt.WriteString("Формы:\n")
+		}
+
+		for _, form := range elemForms {
+			f, err := os.Open(filepath.Join(rootDir, fmt.Sprintf("%s\\Forms\\%s.xml", utils.Opt(elemName).Data, form.Data)))
+
+			if err == nil {
+				doc, err := xmlquery.Parse(f)
+				if err == nil {
+					addAttr, extAttr := changesElement(doc, "/MetaDataObject/Form/Properties/Name")
+					if len(addAttr) > 0 || len(extAttr) > 0 {
+						if len(addAttr) > 0 {
+							txt.WriteString("- Добавленные: " + strings.Join(addAttr, ", ") + "\n")
+						}
+						if len(extAttr) > 0 {
+							txt.WriteString("- Заимствованные: " + strings.Join(extAttr, ", ") + "\n")
+						}
+					}
+				}
+
+				f.Close()
+			}
+
+		}
+		if txt.Len() > 0 {
+			result = append(result, txt.String())
+		}
+	}
+
+	return result
+}
+
+func changesElement(doc *xmlquery.Node, xpath string) ([]string, []string) {
+	elemAttributeName := doc.SelectElements(xpath)
+	addAttr, extAttr := []string{}, []string{}
+	for _, nameElem := range elemAttributeName {
+		txt := nameElem.SelectElement("text()")
+		ext := nameElem.Parent.SelectElement("ExtendedConfigurationObject")
+		if ext != nil {
+			extAttr = append(extAttr, txt.Data)
+		} else {
+			addAttr = append(addAttr, txt.Data)
+		}
+	}
+
+	return addAttr, extAttr
 }
 
 func merge(metadataInfoPrev, metadataInfoNew []*models.MetadataInfo, extID int32) []*models.MetadataInfo {

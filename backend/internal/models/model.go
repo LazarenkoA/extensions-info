@@ -89,9 +89,9 @@ type MetadataInfo struct {
 	ExtensionIDs []int32
 	Borrowed     *bool
 	ID           string
-	Path         string
-	Changes      map[int32][]string
-	Changes_     []string `json:"-"`
+	//Path         string
+	Changes  map[int32][]string
+	Changes_ []string `json:"-"`
 }
 
 type FuncInfo struct {

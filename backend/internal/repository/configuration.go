@@ -2,11 +2,11 @@ package repository
 
 import (
 	"context"
+	onec "github.com/LazarenkoA/extensions-info/internal/1c"
+	"github.com/LazarenkoA/extensions-info/internal/models"
 	sq "github.com/Masterminds/squirrel"
 	"github.com/georgysavva/scany/v2/pgxscan"
 	"github.com/pkg/errors"
-	onec "your-app/internal/1c"
-	"your-app/internal/models"
 )
 
 func (p *PG) GetConfigurationInfo(ctx context.Context, dbID int32) (*models.ConfigurationInfo, error) {

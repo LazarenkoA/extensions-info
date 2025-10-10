@@ -6,9 +6,10 @@ type step struct {
 }
 
 type steps struct {
-	steps []step
-	log   logWriter
-	state map[string]any
+	steps     []step
+	log       logWriter
+	state     map[string]any
+	destructs []func()
 }
 
 func (s *steps) add(name string, handler func() error) {
@@ -28,5 +29,14 @@ func (s *steps) run() error {
 		s.log("progress", byte((float32(i)/float32(len(s.steps)))*100))
 	}
 
+	for _, f := range s.destructs {
+		f()
+	}
+
 	return nil
+}
+
+// destruct код который нужно выполнить по завершению всех шагов (не важно завершилось с ошибкой или нет)
+func (s *steps) destruct(f func()) {
+	s.destructs = append(s.destructs, f)
 }

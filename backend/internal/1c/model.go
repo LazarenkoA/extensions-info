@@ -42,3 +42,5 @@ type ConfigurationStruct struct {
 	BusinessProcesses      []string `xml:"BusinessProcess"`
 	Tasks                  []string `xml:"Task"`
 }
+
+var ruName = map[string]string{}

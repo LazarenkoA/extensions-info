@@ -4,11 +4,11 @@ const { useState, useEffect, useRef } = React;
 const icon = {
     'configuration': 'root',
     'function': 'func',
-    'commonModule': '⚙️',
     'document': 'document',
     'catalog': 'catalog',
     'constant': 'enum',
-    'role': 'role'
+    'role': 'role',
+    'commonModule': 'commonModule',
 }
 const ruNames = {
     'configuration': 'Конфигурация',
@@ -37,6 +37,8 @@ export const DetailsPanel = ({ selectedItem, extensions, changes}) => {
             </div>
         );
     }
+
+    console.log(changes)
 
 
     const renderMetadataDetails = (objectData) => {
@@ -154,7 +156,6 @@ const TreeNode = ({ node, level = 0, selectedItem, setSelectedItem }) => {
 
 
     return (
-        <div>
             <div className="tree-node">
                 <div
                     className={`tree-item ${expanded ? 'expanded' : ''} ${selectedItem && selectedItem.ID == node.ID ? 'selected' : ''}`}
@@ -197,7 +198,6 @@ const TreeNode = ({ node, level = 0, selectedItem, setSelectedItem }) => {
                     </div>
                 )}
             </div>
-        </div>
     );
 
 };

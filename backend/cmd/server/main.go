@@ -2,20 +2,20 @@ package main
 
 import (
 	"context"
+	onec "github.com/LazarenkoA/extensions-info/internal/1c"
+	"github.com/LazarenkoA/extensions-info/internal/app"
+	"github.com/LazarenkoA/extensions-info/internal/config"
+	"github.com/LazarenkoA/extensions-info/internal/repository"
+	"github.com/LazarenkoA/extensions-info/internal/usecase/app_settings"
+	"github.com/LazarenkoA/extensions-info/internal/usecase/configuration"
+	"github.com/LazarenkoA/extensions-info/internal/usecase/databases"
+	"github.com/LazarenkoA/extensions-info/internal/usecase/jobs"
+	ws_conn "github.com/LazarenkoA/extensions-info/internal/ws"
 	"github.com/joho/godotenv"
 	"log"
 	"os"
 	"os/signal"
 	"syscall"
-	onec "your-app/internal/1c"
-	"your-app/internal/app"
-	"your-app/internal/config"
-	"your-app/internal/repository"
-	"your-app/internal/usecase/app_settings"
-	"your-app/internal/usecase/configuration"
-	"your-app/internal/usecase/databases"
-	"your-app/internal/usecase/jobs"
-	ws_conn "your-app/internal/ws"
 )
 
 func main() {

@@ -2,13 +2,13 @@ package databases
 
 import (
 	"context"
+	"github.com/LazarenkoA/extensions-info/internal/models"
+	"github.com/LazarenkoA/extensions-info/internal/usecase"
 	"github.com/gin-gonic/gin"
 	"github.com/pkg/errors"
 	"github.com/samber/lo"
 	"net/http"
 	"strconv"
-	"your-app/internal/models"
-	"your-app/internal/usecase"
 )
 
 type repo interface {

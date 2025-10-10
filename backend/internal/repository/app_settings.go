@@ -2,10 +2,10 @@ package repository
 
 import (
 	"context"
+	"github.com/LazarenkoA/extensions-info/internal/models"
 	sq "github.com/Masterminds/squirrel"
 	"github.com/georgysavva/scany/v2/pgxscan"
 	"github.com/pkg/errors"
-	"your-app/internal/models"
 )
 
 func (p *PG) GetAppSettings(ctx context.Context) (*models.AppSettings, error) {

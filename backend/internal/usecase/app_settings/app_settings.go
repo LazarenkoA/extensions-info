@@ -2,11 +2,11 @@ package app_settings
 
 import (
 	"context"
+	"github.com/LazarenkoA/extensions-info/internal/models"
+	"github.com/LazarenkoA/extensions-info/internal/usecase"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
-	"your-app/internal/models"
-	"your-app/internal/usecase"
 )
 
 type repo interface {

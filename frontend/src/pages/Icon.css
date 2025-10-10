@@ -53,3 +53,12 @@
     width: 15px;
     height: 15px;
 }
+
+
+.icon-commonModule {
+    content: url("icons/commonModule.png");
+    margin-right: 5px;
+    display: inline-block;
+    width: 15px;
+    height: 15px;
+}

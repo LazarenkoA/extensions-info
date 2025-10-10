@@ -100,7 +100,7 @@ func createListFile() string {
 	return ""
 }
 
-func loadExtensionsInfo(binPath, connectionString string) (string, []ConfigurationInfo, error) {
+func loadExtensionsInfo(binPath, connectionString, login, pass string) (string, []ConfigurationInfo, error) {
 	workDir, err := os.MkdirTemp("", "")
 	if err != nil {
 		return "", nil, errors.Wrap(err, "create tmp dir")
@@ -112,6 +112,13 @@ func loadExtensionsInfo(binPath, connectionString string) (string, []Configurati
 	params = append(params, "-AllExtensions")
 	params = append(params, "/DisableStartupDialogs")
 	params = append(params, "/DisableStartupMessages")
+
+	if login != "" {
+		params = append(params, "/N", login)
+	}
+	if pass != "" {
+		params = append(params, "/P", pass)
+	}
 
 	if strings.HasPrefix(connectionString, "File") {
 		re := regexp.MustCompile(`"([^"]*)"`)

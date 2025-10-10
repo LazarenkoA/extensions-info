@@ -3,11 +3,12 @@ package onec
 import (
 	"context"
 	"encoding/json"
+	"github.com/LazarenkoA/extensions-info/internal/models"
+	"github.com/LazarenkoA/extensions-info/internal/usecase/databases"
+	"github.com/LazarenkoA/extensions-info/internal/utils"
 	"github.com/pkg/errors"
 	"os"
 	"time"
-	"your-app/internal/models"
-	"your-app/internal/usecase/databases"
 )
 
 type logWriter func(msgType string, msg interface{})
@@ -20,6 +21,7 @@ type repo interface {
 	StoreExtensionsInfo(ctx context.Context, confID int32, confInfo []ConfigurationInfo) error
 	GetExtensionsInfo(ctx context.Context, confID int32) ([]ConfigurationInfo, error)
 	SetMetadata(ctx context.Context, confID int32, value []byte) error
+	GetMetadata(ctx context.Context, confID int32) ([]byte, error)
 }
 
 type Analyzer1C struct {
@@ -51,6 +53,9 @@ func (a *Analyzer1C) RunAnalyzing(ctx context.Context, dbID int32) chan string {
 			confID, extDir, err := a.confAnalyzing(ctx, dbID)
 			step.state["extDir"] = extDir
 			step.state["confID"] = confID
+			step.destruct(func() {
+				os.RemoveAll(extDir)
+			})
 
 			return err
 		})
@@ -67,12 +72,16 @@ func (a *Analyzer1C) RunAnalyzing(ctx context.Context, dbID int32) chan string {
 			return a.metadataAnalyzing(extDir.(string), confID.(int32))
 		})
 		step.add("Анализ кода расширений", func() error {
-			defer os.RemoveAll(step.state["extDir"].(string))
-			time.Sleep(time.Second)
-			log("log", "\tчто-то делаем")
-			time.Sleep(time.Second)
-			log("log", "\tуспешно")
-			return nil
+			extDir, ok := step.state["extDir"]
+			if !ok {
+				return errors.New("extensions dir is not defined")
+			}
+			confID, ok := step.state["confID"]
+			if !ok {
+				return errors.New("confID is not defined")
+			}
+
+			return a.codeAnalyzing(extDir.(string), confID.(int32))
 		})
 		err = step.run()
 
@@ -112,7 +121,7 @@ func (a *Analyzer1C) confAnalyzing(ctx context.Context, dbID int32) (int32, stri
 		return 0, "", errors.Wrap(err, "store error")
 	}
 
-	extDir, extInfo, err := loadExtensionsInfo(appSettings.PlatformPath, info.ConnectionString)
+	extDir, extInfo, err := loadExtensionsInfo(appSettings.PlatformPath, info.ConnectionString, utils.PtrToVal(info.Username), utils.PtrToVal(info.Password))
 	if err != nil {
 		return 0, "", errors.Wrap(err, "store error")
 	}
