@@ -7,7 +7,7 @@ const { useState, useEffect, useRef } = React;
 const ResultsView = ({ conf, database }) => {
     const [selectedItem, setSelectedItem] = useState(null);
 
-    if (!conf) {// || !conf.Extensions) {
+    if (!conf || !conf.Extensions) {
         return (
             <div className="empty-state">
                 <div className="empty-state-icon">📊</div>
@@ -25,7 +25,6 @@ const ResultsView = ({ conf, database }) => {
                     Анализ завершен: {database.LastCheckAsString}
                 </div>
             </div>
-
             <div className="results-grid">
                 <div className="result-card config-info">
                     <h3>Информация о конфигурации</h3>
@@ -52,7 +51,6 @@ const ResultsView = ({ conf, database }) => {
                         </div>
                     </div>
                 </div>
-
                 <div className="result-card config-info">
                     <div className="metadata-container">
                         <div className="tree-container">
@@ -67,9 +65,8 @@ const ResultsView = ({ conf, database }) => {
 
                         {selectedItem && (
                             <DetailsPanel
-                                changes={selectedItem.Changes}
                                 selectedItem={selectedItem}
-                                extensions={conf.Extensions?.filter(ext => selectedItem.ExtensionIDs && selectedItem.ExtensionIDs?.includes(ext.ID))}
+                                extensionInfo={conf.Extensions}
                             />
                         )}
                     </div>

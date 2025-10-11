@@ -1,6 +1,11 @@
 //nolint:revive
 package utils
 
+import (
+	"crypto/md5"
+	"encoding/hex"
+)
+
 func Ptr[T any](v T) *T {
 	return &v
 }
@@ -23,4 +28,18 @@ func Opt[T any](object *T) T {
 
 	var tmp T
 	return tmp
+}
+
+func Cast[T any](v interface{}) T {
+	var defaultVal T
+	if v, ok := v.(T); ok {
+		return v
+	}
+
+	return defaultVal
+}
+
+func Hash(backed []byte) string {
+	hash := md5.Sum(backed)
+	return hex.EncodeToString(hash[:])
 }

@@ -1,26 +1,134 @@
 import React from "react";
+import {useDatabase} from "./ContexDatabaset";
+import { useQuery } from '@tanstack/react-query';
+import hljs from 'highlight.js/lib/core';
+import 'highlight.js/styles/github-dark.css';
+import onec from 'highlight.js/lib/languages/1c';
+import {getConfigurationInfo, getSourceCode} from "../services/configuration";
 
-const { useState, useEffect, useRef } = React;
-const icon = {
-    'configuration': 'root',
-    'function': 'func',
-    'document': 'document',
-    'catalog': 'catalog',
-    'constant': 'enum',
-    'role': 'role',
-    'commonModule': 'commonModule',
-}
+hljs.registerLanguage('1c', onec);
+
 const ruNames = {
-    'configuration': 'Конфигурация',
-    'function': 'Метод',
-    'commonModule': 'Общий модуль',
-    'document': 'Документ',
-    'catalog': 'Справочник',
-    'constant': 'Перечисление',
-    'role': 'Роль'
+    'Configuration': {name:'Конфигурация', icon: 'root'},
+    'Functions': {name:'Метод', icon: 'func'},
+    'CommonModules': {name:'Общий модуль',icon: 'commonModule'},
+    'Documents': {name:'Документ',icon: 'document'},
+    'Catalogs': {name:'Справочник',icon: 'catalog'},
+    'Constants': {name:'Константы',icon: 'сonstant'},
+    'Roles': {name:'Роль',icon: 'role'},
+    'Enums': {name:'Перечисление',icon: 'enum'},
+    'Languages': {name:'Язык',icon: 'language'},
+    'InformationRegisters': {name:'Регистр сведений',icon: 'informationRegister'},
+    'HTTPServices': {name:'HTTP сервис',icon: 'httpService'},
+    'WebServices': {name:'Web сервис',icon: 'webService'},
+    'WSReferences': {name:'WS ссылка',icon: 'webService'},
+    'XDTOPackages': {name:'XDTO пакет',icon: 'xdtoPackage'},
+    'Reports': {name:'Отчет',icon: 'report'},
+    'Subsystems': {name:'Подсистема',icon: 'subsystem'},
+    'Styles': {name:'Стриль',icon: 'style'},
+    'StyleItems': {name:'Элемент стиля',icon: 'style'},
+    'CommonForms': {name:'Общая форма',icon: 'form'},
+    'CommonCommands': {name:'Общая команда',icon: 'command'},
+    'CommandGroups': {name:'Группа команд',icon: 'command'},
+    'AccountingRegisters': {name:'Регистр бухгалтерии',icon: 'accountingRegister'},
+    'AccumulationRegisters': {name:'Регистр накопления',icon: 'accumulationRegister'},
+    'CalculationRegisters': {name:'Регистр расчета',icon: 'calculationRegister'},
+    'CommonTemplates': {name:'Общий макет',icon: 'template'},
+    'CommonPictures': {name:'Общая картинка',icon: 'commonPictures'},
+    'DataProcessors': {name:'Обработка',icon: 'dataProcessors'},
+    'SessionParameters': {name:'Параметр сеанса',icon: 'sessionParameter'},
+    'SettingsStorages': {name:'Хранилище настроек',icon: 'settingsStorage'},
 }
 
-export const DetailsPanel = ({ selectedItem, extensions, changes}) => {
+const { useState,  useEffect, useRef } = React;
+
+const useHighlightTheme = () => {
+
+        const updateTheme = () => {
+            const colorScheme = document.documentElement.getAttribute("data-color-scheme");
+            const existingLink = document.querySelector('link[href*="highlight.js"]');
+
+            if (existingLink) {
+                existingLink.remove();
+            }
+
+            const link = document.createElement('link');
+            link.rel = 'stylesheet';
+
+            const theme = colorScheme === 'dark' ? 'a11y-dark' : '1c-light';
+            link.href = `https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/${theme}.css`;
+
+            link.onload = () => {
+                // Убираем старые классы highlight.js
+                document.querySelectorAll('pre code').forEach(block => {
+                    block.removeAttribute('data-highlighted');
+                    block.className = block.className.replace(/hljs[\w-]*/g, '').trim();
+                });
+
+                // Повторно применяем подсветку
+                hljs.highlightAll();
+            };
+
+            document.head.appendChild(link);
+        };
+
+        // Обновляем тему при монтировании
+        updateTheme();
+
+        // Наблюдаем за изменениями атрибута data-color-scheme
+        const observer = new MutationObserver(() => {
+            updateTheme();
+        });
+
+        observer.observe(document.documentElement, {
+            attributes: true,
+            attributeFilter: ['data-color-scheme']
+        });
+
+        return () => observer.disconnect();
+
+};
+
+function useSourceCode(extID, moduleKey) {
+    return useQuery({
+        queryKey: ['sourceCode', extID, moduleKey],
+        queryFn: ({queryKey} ) => {
+            const [, extid, modulekey] = queryKey;
+            return getSourceCode(extid, modulekey)
+        } ,
+        select: (data) => data.data,
+        enabled: !!extID && !!moduleKey,
+    });
+}
+
+const CodeModal = ({ onClose, functionData }) => {
+    useHighlightTheme()
+
+    const { data: code, isLoading, error } = useSourceCode(functionData?.extID, functionData?.moduleKey)
+    if(error) {
+        console.log(error)
+    }
+
+    if (!functionData) return null;
+
+    return (
+        <div className="code-modal">
+            <div className="code-modal-content">
+                <div className="code-modal-header">
+                    <h3 className="code-modal-title">
+                        {functionData.functionName}
+                    </h3>
+                    <button className="close-btn" onClick={onClose}>×</button>
+                </div>
+                <pre><code className="language-1c">{code}</code></pre>
+            </div>
+        </div>
+    );
+};
+
+export const DetailsPanel = ({selectedItem, extensionInfo }) => {
+    const [codeModal, setCodeModal] = useState(null);
+
     if (!selectedItem) {
         return (
             <div className="details-panel hidden">
@@ -38,24 +146,27 @@ export const DetailsPanel = ({ selectedItem, extensions, changes}) => {
         );
     }
 
-    console.log(changes)
-
+    const extPreview = (id) => {
+        const ext = extensionInfo?.filter(ext => ext.ID === id)
+        if(ext?.length === 1)
+            return `${ext[0].Name} ${ext[0].Version !== '' ? `(v: ${ext[0].Version})` : ''}`
+    }
 
     const renderMetadataDetails = (objectData) => {
         return (
             <div className="details-panel">
                 <div className="details-header">
-                    <h3 className="details-title">{ruNames[objectData.Type] || objectData.Type}: {objectData.ObjectName}</h3>
+                    <h3 className="details-title">{ruNames[objectData.Type]?.name || objectData.Type}: {objectData.ObjectName}</h3>
                 </div>
                 <div className="details-content">
-                    {extensions && extensions.map((ext, index) => (
+                    {objectData.Extension && objectData.Extension.map((ext, index) => (
                         <div key={index} className="extension-section">
                             <div className="extension-header">
-                                <h4 className="extension-name">{ext.Name} {ext.Version != '' ? `(v: ${ext.Version})` : ''}</h4>
+                                <h4 className="extension-name">{extPreview(ext.ID)}</h4>
                             </div>
                             <div className="extension-body">
                                 <ul className="changes-list">
-                                    {changes[ext.ID]?.map((change, changeIndex) => (
+                                    {ext.MetadataChanges && ext.MetadataChanges.map((change, changeIndex) => (
                                         <li key={changeIndex}>{change}</li>
                                     ))}
                                 </ul>
@@ -69,12 +180,12 @@ export const DetailsPanel = ({ selectedItem, extensions, changes}) => {
 
     const renderFunctionDetails = (functionData) => {
         const getOverrideTypeClass = (mode) => {
-            switch (mode) {
-                case 'Вместо': return 'vmestore';
-                case 'ИзменениеИКонтроль': return 'izmenenie-i-kontrol';
-                case 'Перед': return 'pered';
-                case 'После': return 'posle';
-                default: return 'posle';
+            switch (mode.toLowerCase()) {
+                case '&вместо': return 'vmestore';
+                case '&изменениеиконтроль': return 'izmenenie-i-kontrol';
+                case '&перед': return 'pered';
+                case '&после': return 'posle';
+                default: return '-';
             }
         };
 
@@ -84,40 +195,43 @@ export const DetailsPanel = ({ selectedItem, extensions, changes}) => {
                     <h3 className="details-title">Переопределения функции: {functionData.Name}</h3>
                 </div>
                 <div className="details-content">
-                    {extensions && extensions.map((ext, index) => (
+                    {functionData.Extension && functionData.Extension.map((ext, index) => (
                         <div key={index} className="extension-section">
                             <div className="extension-header">
-                                <h4 className="extension-name">{ext.Name} (v{ext.Version})</h4>
+                                <h4 className="extension-name">{extPreview(ext.ID)}</h4>
                             </div>
                             <div className="extension-body">
-                                <div className="function-override">
-                                    <div className="override-header">
-                    <span className={`override-type-badge ${getOverrideTypeClass(functionData.RedefinitionMethod)}`}>
-                      {functionData.RedefinitionMethod}
+                                {functionData && ext.FuncsChanges && ext.FuncsChanges.map((func, id) => (
+                                    <div key={id} className="function-override">
+                                        <div className="override-header">
+                    <span
+                        className={`override-type-badge ${getOverrideTypeClass(func.Directive)}`}>
+                      {func.Directive}
                     </span>
-                                        <div
-                                            className="function-name-link"
-                                            // onClick={() => onFunctionClick(ext)}
-                                        >
-                                            /api/v1/getConfiguration77777777777777777777Info?id=1
-                                            {/*{ext.functionName}*/}
+                                            <div
+                                                className="function-name-link" data-tooltip={func.Name}
+                                                onClick={() => setCodeModal({ isOpen: true, functionName: func.Name, extID: ext.ID, moduleKey: func.ModuleKey})}
+                                            >
+                                                {func.Name}
+                                            </div>
                                         </div>
-                                    </div>
 
-                                </div>
+                                    </div>
+                                ))}
+
                             </div>
                         </div>
                     ))}
                 </div>
+                {codeModal && codeModal.isOpen && <CodeModal
+                    onClose={() => setCodeModal(null)}
+                    functionData={codeModal}
+                />}
             </div>
         );
     };
 
-    // Determine if it's a metadata object or function
-    // const objectData = database.objectOverrides[selectedItem.id];
-    // const functionData = database.functionOverrides[selectedItem.id];
-
-    if (selectedItem.Type === 'function') {
+    if (selectedItem.Type === 'Functions') {
         return renderFunctionDetails(selectedItem);
     }
 
@@ -141,19 +255,23 @@ export const DetailsPanel = ({ selectedItem, extensions, changes}) => {
 
 const TreeNode = ({ node, level = 0, selectedItem, setSelectedItem }) => {
     let [expanded, setExpanded] = useState(false);
+    const { selectedDb } = useDatabase();
     const handleToggle = () => {
         setExpanded(!expanded);
     };
+    useEffect(() => {
+        setSelectedItem(null)
+    }, [selectedDb])
 
     if(!node) {
         return null
     }
 
+
     const hasChildren = node.Children && node.Children.length > 0;
     const hasFunctions = node.Funcs && node.Funcs.length > 0;
 
     expanded = expanded || level == 0 // первый уровент всегда открыт
-
 
     return (
             <div className="tree-node">
@@ -164,7 +282,7 @@ const TreeNode = ({ node, level = 0, selectedItem, setSelectedItem }) => {
                     <div className="tree-toggle" onClick={handleToggle}>
                         {(hasChildren || hasFunctions) ? (expanded ? '▼' : '▶') : ''}
                     </div>
-                    <div className={`icon-${icon[node.Type] || 'default'}`}></div>
+                    <div className={`icon-${ruNames[node.Type]?.icon || 'default'}`}></div>
                     <div className="tree-label">
                         {node.ObjectName || node.Name || node.Type}
                     </div>

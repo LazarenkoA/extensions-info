@@ -1,8 +1,10 @@
 module github.com/LazarenkoA/extensions-info
 
-go 1.23.0
+go 1.23.1
 
 toolchain go1.24.6
+
+replace github.com/LazarenkoA/1c-language-parser => ../../1c-language-parser
 
 require (
 	github.com/Masterminds/squirrel v1.5.4
@@ -15,11 +17,13 @@ require (
 )
 
 require (
+	github.com/LazarenkoA/1c-language-parser v0.0.0-20251011155531-1e03dceb9876 // indirect
 	github.com/antchfx/xmlquery v1.4.4 // indirect
 	github.com/antchfx/xpath v1.3.3 // indirect
 	github.com/beevik/etree v1.6.0 // indirect
 	github.com/bytedance/sonic v1.9.1 // indirect
 	github.com/chenzhuoyu/base64x v0.0.0-20221115062448-fe3a3abad311 // indirect
+	github.com/fatih/structs v1.1.0 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.2 // indirect
 	github.com/georgysavva/scany v1.2.3 // indirect
 	github.com/georgysavva/scany/v2 v2.1.4 // indirect
@@ -53,7 +57,7 @@ require (
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/pelletier/go-toml/v2 v2.0.8 // indirect
 	github.com/rogpeppe/go-internal v1.13.1 // indirect
-	github.com/samber/lo v1.51.0 // indirect
+	github.com/samber/lo v1.52.0 // indirect
 	github.com/stretchr/testify v1.10.0 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.2.11 // indirect

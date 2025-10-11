@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"encoding/json"
 	onec "github.com/LazarenkoA/extensions-info/internal/1c"
 	"github.com/LazarenkoA/extensions-info/internal/models"
 	sq "github.com/Masterminds/squirrel"
@@ -40,17 +41,21 @@ func (p *PG) GetConfigurationInfo(ctx context.Context, dbID int32) (*models.Conf
 }
 
 func (p *PG) StoreConfigurationInfo(ctx context.Context, dbID int32, confInfo *onec.ConfigurationInfo) (int32, error) {
+	childObjects, _ := json.Marshal(confInfo.ChildObjects)
+
 	builder := sq.Insert("conf_info").
 		SetMap(map[string]interface{}{
-			"database_id": dbID,
-			"name":        confInfo.Name,
-			"description": confInfo.Synonym,
-			"version":     confInfo.Version,
+			"database_id":   dbID,
+			"name":          confInfo.Name,
+			"description":   confInfo.Synonym,
+			"version":       confInfo.Version,
+			"child_objects": childObjects,
 		}).
 		Suffix("ON CONFLICT (database_id) DO UPDATE " +
 			"SET name = EXCLUDED.name," +
 			"description = EXCLUDED.description," +
-			"version = EXCLUDED.version").
+			"version = EXCLUDED.version," +
+			"child_objects = EXCLUDED.child_objects").
 		Suffix("RETURNING id").
 		PlaceholderFormat(sq.Dollar)
 
@@ -106,4 +111,23 @@ func (p *PG) GetExtensionsInfo(ctx context.Context, confID int32) ([]onec.Config
 	}
 
 	return result, err
+}
+
+func (p *PG) GetChildObjectsConf(ctx context.Context, confID int32) (*onec.ConfigurationStruct, error) {
+	builder := sq.Select("child_objects").
+		From("conf_info").
+		Where(sq.Eq{"id": confID}).
+		PlaceholderFormat(sq.Dollar)
+
+	var data []byte
+	query, args, _ := builder.ToSql()
+	err := pgxscan.Get(ctx, p.pool, &data, query, args...)
+	if err != nil {
+		return nil, errors.Wrap(err, "query error")
+	}
+
+	var result onec.ConfigurationStruct
+	_ = json.Unmarshal(data, &result)
+
+	return &result, err
 }

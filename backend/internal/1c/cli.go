@@ -16,7 +16,7 @@ import (
 	"time"
 )
 
-func loadConfigurationInfo(binPath, connectionString string) (*ConfigurationInfo, error) {
+func loadConfigurationInfo(binPath, connectionString string, login, pass string) (*ConfigurationInfo, error) {
 	workDir, err := os.MkdirTemp("", "")
 	if err != nil {
 		return nil, errors.Wrap(err, "create tmp dir")
@@ -32,6 +32,13 @@ func loadConfigurationInfo(binPath, connectionString string) (*ConfigurationInfo
 	params = append(params, "-listFile", listFile)
 	params = append(params, "/DisableStartupDialogs")
 	params = append(params, "/DisableStartupMessages")
+
+	if login != "" {
+		params = append(params, "/N", login)
+	}
+	if pass != "" {
+		params = append(params, "/P", pass)
+	}
 
 	if strings.HasPrefix(connectionString, "File") {
 		re := regexp.MustCompile(`"([^"]*)"`)

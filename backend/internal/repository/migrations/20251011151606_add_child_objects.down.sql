@@ -1,0 +1,5 @@
+BEGIN;
+
+ALTER TABLE conf_info DROP COLUMN IF EXISTS child_objects;
+
+COMMIT;

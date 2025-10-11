@@ -22,6 +22,8 @@ type repo interface {
 	GetExtensionsInfo(ctx context.Context, confID int32) ([]ConfigurationInfo, error)
 	SetMetadata(ctx context.Context, confID int32, value []byte) error
 	GetMetadata(ctx context.Context, confID int32) ([]byte, error)
+	GetChildObjectsConf(ctx context.Context, confID int32) (*ConfigurationStruct, error)
+	SetCode(ctx context.Context, extID int32, key, code string) error
 }
 
 type Analyzer1C struct {
@@ -72,16 +74,12 @@ func (a *Analyzer1C) RunAnalyzing(ctx context.Context, dbID int32) chan string {
 			return a.metadataAnalyzing(extDir.(string), confID.(int32))
 		})
 		step.add("Анализ кода расширений", func() error {
-			extDir, ok := step.state["extDir"]
-			if !ok {
-				return errors.New("extensions dir is not defined")
-			}
 			confID, ok := step.state["confID"]
 			if !ok {
 				return errors.New("confID is not defined")
 			}
 
-			return a.codeAnalyzing(extDir.(string), confID.(int32))
+			return a.codeAnalyzing(confID.(int32))
 		})
 		err = step.run()
 
@@ -111,7 +109,7 @@ func (a *Analyzer1C) confAnalyzing(ctx context.Context, dbID int32) (int32, stri
 		return 0, "", errors.New("platform bin path is not defined")
 	}
 
-	confInfo, err := loadConfigurationInfo(appSettings.PlatformPath, info.ConnectionString)
+	confInfo, err := loadConfigurationInfo(appSettings.PlatformPath, info.ConnectionString, utils.PtrToVal(info.Username), utils.PtrToVal(info.Password))
 	if err != nil {
 		return 0, "", err
 	}

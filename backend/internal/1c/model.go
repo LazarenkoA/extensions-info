@@ -1,22 +1,19 @@
 package onec
 
-import "encoding/xml"
-
 type ConfigurationInfo struct {
-	ID      int32
-	Name    string
-	Synonym string
-	Version string
-	Vendor  string
-	Purpose string
+	ID           int32
+	Name         string
+	Synonym      string
+	Version      string
+	Vendor       string
+	Purpose      string
+	ChildObjects *ConfigurationStruct
 }
 
 type MetadataObjectStruct struct {
 }
 
 type ConfigurationStruct struct {
-	XMLName                xml.Name `xml:"ChildObjects"`
-	Language               []string `xml:"Language"`
 	Subsystems             []string `xml:"Subsystem"`
 	Roles                  []string `xml:"Role"`
 	CommonModules          []string `xml:"CommonModule"`

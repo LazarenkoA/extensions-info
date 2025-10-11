@@ -4,3 +4,8 @@ import {apiRequest} from './request'
 export const getConfigurationInfo = (id) => {
     return apiRequest(`/getConfigurationInfo?id=${id}`);
 };
+
+// Получить информацию по коду
+export const getSourceCode = (extid, modulekey) => {
+    return apiRequest(`/getSourceCode?extid=${extid}&modulekey=${modulekey}`);
+};

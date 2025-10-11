@@ -2,49 +2,6 @@ package models
 
 import "time"
 
-type ObjectType string
-type Redefinition string
-
-const (
-	ObjectTypeUndefined              ObjectType = ""
-	ObjectTypeConf                   ObjectType = "configuration"
-	ObjectTypeLanguage               ObjectType = "language"
-	ObjectTypeSubsystems             ObjectType = "subsystem"
-	ObjectTypeRoles                  ObjectType = "role"
-	ObjectTypeCommonModules          ObjectType = "commonModule"
-	ObjectTypeExchangePlans          ObjectType = "exchangePlan"
-	ObjectTypeHTTPServices           ObjectType = "httpService"
-	ObjectTypeEventSubscriptions     ObjectType = "eventSubscription"
-	ObjectTypeScheduledJobs          ObjectType = "scheduledJob"
-	ObjectTypeDefinedTypes           ObjectType = "definedType"
-	ObjectTypeConstants              ObjectType = "constant"
-	ObjectTypeCatalogs               ObjectType = "catalog"
-	ObjectTypeDocuments              ObjectType = "document"
-	ObjectTypeDocumentJournals       ObjectType = "documentJournal"
-	ObjectTypeEnums                  ObjectType = "enum"
-	ObjectTypeReports                ObjectType = "report"
-	ObjectTypeDataProcessors         ObjectType = "dataProcessor"
-	ObjectTypeInformationRegisters   ObjectType = "informationRegister"
-	ObjectTypeAccumulationRegisters  ObjectType = "accumulationRegister"
-	ObjectTypeChartsOfCharacteristic ObjectType = "chartOfCharacteristicTypes"
-	ObjectTypeChartsOfAccounts       ObjectType = "chartOfAccounts"
-	ObjectTypeAccountingRegisters    ObjectType = "accountingRegister"
-	ObjectTypeChartsOfCalculation    ObjectType = "chartOfCalculationTypes"
-	ObjectTypeCalculationRegisters   ObjectType = "calculationRegister"
-	ObjectTypeBusinessProcesses      ObjectType = "businessProcess"
-	ObjectTypeTasks                  ObjectType = "task"
-	ObjectTypeFunction               ObjectType = "function"
-	// и остальное
-)
-
-const (
-	RedefinitionUndefined     Redefinition = ""
-	RedefinitionBefore        Redefinition = "Перед"
-	RedefinitionAfter         Redefinition = "После"
-	RedefinitionChangeControl Redefinition = "ИзменениеИКонтроль"
-	RedefinitionInstead       Redefinition = "Вместо"
-)
-
 type CRONInfo struct {
 	Schedule          string
 	NextCheck         time.Time
@@ -81,28 +38,44 @@ type ExtensionsInfo struct {
 	Purpose string
 }
 
+type ExtChanges struct {
+	ID                int32
+	MetadataChanges   []string
+	FuncsChanges      []FuncInfo
+	PathObject        string
+	ExtensionRootPath string
+}
+
+type ChildrenObject []*MetadataInfo
+
 type MetadataInfo struct {
-	ObjectName   string
-	Type         ObjectType
-	Funcs        []FuncInfo
-	Children     []*MetadataInfo
-	ExtensionIDs []int32
-	Borrowed     *bool
-	ID           string
-	//Path         string
-	Changes  map[int32][]string
-	Changes_ []string `json:"-"`
+	ObjectName string
+	Type       string
+	Children   ChildrenObject
+	Extension  []*ExtChanges
+	Borrowed   *bool
+	ID         string
 }
 
 type FuncInfo struct {
-	RedefinitionMethod Redefinition
-	Type               ObjectType
-	Name               string
-	Code               string
-	ExtensionIDs       []int32
+	Directive string
+	Type      string
+	Name      string
+	Code      string
+	ModuleKey string
 }
 
 type AppSettings struct {
 	ID           int32
 	PlatformPath string
+}
+
+func (c ChildrenObject) Find(name string, otype string) *MetadataInfo {
+	for _, item := range c {
+		if item.ObjectName == name && item.Type == otype {
+			return item
+		}
+	}
+
+	return nil
 }

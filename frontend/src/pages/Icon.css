@@ -14,8 +14,24 @@
     height: 15px;
 }
 
+.icon-сonstant {
+    content: url("icons/сonstant.png");
+    margin-right: 5px;
+    display: inline-block;
+    width: 15px;
+    height: 15px;
+}
+
 .icon-enum {
     content: url("icons/enum.png");
+    margin-right: 5px;
+    display: inline-block;
+    width: 15px;
+    height: 15px;
+}
+
+.icon-language {
+    content: url("icons/language.png");
     margin-right: 5px;
     display: inline-block;
     width: 15px;
@@ -50,13 +66,150 @@
     content: url("icons/func.png");
     margin-right: 5px;
     display: inline-block;
-    width: 15px;
-    height: 15px;
+    width: 30px;
+    height: 30px;
 }
 
 
 .icon-commonModule {
     content: url("icons/commonModule.png");
+    margin-right: 5px;
+    display: inline-block;
+    width: 15px;
+    height: 15px;
+}
+
+.icon-informationRegister {
+    content: url("icons/informationRegister.png");
+    margin-right: 5px;
+    display: inline-block;
+    width: 15px;
+    height: 15px;
+}
+
+.icon-httpService {
+    content: url("icons/httpService.png");
+    margin-right: 5px;
+    display: inline-block;
+    width: 15px;
+    height: 15px;
+}
+
+.icon-webService {
+    content: url("icons/webService.png");
+    margin-right: 5px;
+    display: inline-block;
+    width: 15px;
+    height: 15px;
+}
+
+.icon-xdtoPackage {
+    content: url("icons/xdtoPackage.png");
+    margin-right: 5px;
+    display: inline-block;
+    width: 15px;
+    height: 15px;
+}
+
+.icon-subsystem{
+    content: url("icons/subsystem.png");
+    margin-right: 5px;
+    display: inline-block;
+    width: 15px;
+    height: 15px;
+}
+
+.icon-report{
+    content: url("icons/report.png");
+    margin-right: 5px;
+    display: inline-block;
+    width: 15px;
+    height: 15px;
+}
+
+.icon-style{
+    content: url("icons/style.png");
+    margin-right: 5px;
+    display: inline-block;
+    width: 15px;
+    height: 15px;
+}
+
+.icon-calculationRegister{
+    content: url("icons/calculationRegister.png");
+    margin-right: 5px;
+    display: inline-block;
+    width: 15px;
+    height: 15px;
+}
+
+.icon-accountingRegister{
+    content: url("icons/accountingRegister.png");
+    margin-right: 5px;
+    display: inline-block;
+    width: 15px;
+    height: 15px;
+}
+
+.icon-accumulationRegister{
+    content: url("icons/accumulationRegister.png");
+    margin-right: 5px;
+    display: inline-block;
+    width: 15px;
+    height: 15px;
+}
+
+.icon-command{
+    content: url("icons/command.png");
+    margin-right: 5px;
+    display: inline-block;
+    width: 15px;
+    height: 15px;
+}
+
+.icon-form{
+    content: url("icons/form.png");
+    margin-right: 5px;
+    display: inline-block;
+    width: 15px;
+    height: 15px;
+}
+
+.icon-dataProcessors{
+    content: url("icons/dataProcessors.png");
+    margin-right: 5px;
+    display: inline-block;
+    width: 15px;
+    height: 15px;
+}
+
+.icon-commonPictures{
+    content: url("icons/commonPictures.png");
+    margin-right: 5px;
+    display: inline-block;
+    width: 15px;
+    height: 15px;
+}
+
+.icon-template{
+    content: url("icons/template.png");
+    margin-right: 5px;
+    display: inline-block;
+    width: 15px;
+    height: 15px;
+}
+
+.icon-settingsStorage{
+    content: url("icons/settingsStorage.png");
+    margin-right: 5px;
+    display: inline-block;
+    width: 15px;
+    height: 15px;
+}
+
+
+.icon-sessionParameter{
+    content: url("icons/sessionParameter.png");
     margin-right: 5px;
     display: inline-block;
     width: 15px;

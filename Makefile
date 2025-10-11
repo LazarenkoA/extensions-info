@@ -2,25 +2,7 @@
 # если в консоли IDE русские символы выводятся не читабельно, то выполнить команду
 # $OutputEncoding = [console]::InputEncoding = [console]::OutputEncoding = New-Object System.Text.UTF8Encoding
 
-# Makefile для управления проектом Go + React
-
 .PHONY: help install build start stop clean test lint docker-up docker-down logs
-
-
-# Показать справку
-help:
-	@echo Доступные команды:
-	@echo   install      - Установить зависимости для frontend и backend
-	@echo   build        - Собрать проект
-	@echo   start        - Запустить в режиме разработки
-	@echo   start-prod   - Запустить в production режиме
-	@echo   stop         - Остановить все сервисы
-	@echo   clean        - Очистить собранные файлы
-	@echo   test         - Запустить тесты
-	@echo   docker-up    - Запустить с помощью Docker Compose
-	@echo   docker-down  - Остановить Docker контейнеры
-	@echo   logs         - Показать логи Docker контейнеров
-	@echo   migrations   - Запуск миграции базы данных
 
 
 migrations-up:
@@ -55,12 +37,6 @@ start-backend:
 
 start-frontend:
 	cd frontend && npm start
-
-# Запуск в production режиме
-start-prod: build
-	@echo Запуск в production режиме...
-	cd backend && ./bin/server &
-	cd frontend && npx serve -s build -l 3000
 
 # Остановка всех процессов
 stop:
@@ -106,13 +82,6 @@ docker-rebuild:
 
 logs:
 	docker-compose logs -f
-
-# Команды для разработки
-dev-setup: install
-	@echo Настройка окружения для разработки...
-	@echo 1. Убедитесь, что у вас установлены Go (1.21+) и Node.js (18+)
-	@echo 2. Запустите 'make start' для запуска в режиме разработки
-	@echo 3. Или 'make docker-up' для запуска в Docker
 
 # Проверка зависимостей
 check-deps:

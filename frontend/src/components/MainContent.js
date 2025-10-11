@@ -110,7 +110,7 @@ const MainContent = () => {
 
 
     const query = useQuery({
-        queryKey: ['configuration', selectedDb?.ID],
+        queryKey: ['Configuration', selectedDb?.ID],
         //staleTime: 10_000, // кеш 10 секунд
         queryFn: ({queryKey }) => {
             const [, id] = queryKey;

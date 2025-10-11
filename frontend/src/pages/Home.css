@@ -366,30 +366,6 @@ a:hover {
   color: var(--color-primary-hover);
 }
 
-code,
-pre {
-  font-family: var(--font-family-mono);
-  font-size: calc(var(--font-size-base) * 0.95);
-  background-color: var(--color-secondary);
-  border-radius: var(--radius-sm);
-}
-
-code {
-  padding: var(--space-1) var(--space-4);
-}
-
-pre {
-  padding: var(--space-16);
-  margin: var(--space-16) 0;
-  overflow: auto;
-  border: 1px solid var(--color-border);
-}
-
-pre code {
-  background: none;
-  padding: 0;
-}
-
 /* Buttons */
 .btn {
   display: inline-flex;
@@ -895,9 +871,11 @@ select.form-control {
 .function-name-link {
   color: var(--color-primary);
   cursor: pointer;
-  text-decoration: underline;
+  /*text-decoration: underline;*/
   font-weight: var(--font-weight-medium);
   margin-top: 20px;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .override-header {
@@ -1482,9 +1460,9 @@ select.form-control {
 
 .config-details {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-auto-flow: column; /* в одну строку */
+  grid-template-columns: repeat(auto-fit, minmax(min-content, 1fr));
   gap: var(--space-16);
-  margin-bottom: var(--space-16);
 }
 
 .config-detail {
@@ -1492,6 +1470,7 @@ select.form-control {
   padding: var(--space-12);
   border-radius: var(--radius-base);
   transition: background-color var(--duration-normal) var(--ease-standard);
+  border: 1px solid #ccc; /* чтобы было видно границу */
 }
 
 .config-detail-label {
@@ -1591,6 +1570,9 @@ select.form-control {
   flex: 1;
   font-weight: var(--font-weight-medium);
   transition: color var(--duration-normal) var(--ease-standard);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .tree-status {
@@ -1677,10 +1659,6 @@ select.form-control {
   
   .main-content {
     padding: var(--space-16);
-  }
-
-  .config-details {
-    grid-template-columns: 1fr;
   }
   
   .modal-content {
