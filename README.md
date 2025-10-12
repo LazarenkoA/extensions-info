@@ -15,7 +15,7 @@ docker-compose up --build -d
  ```
 и отдельно бэк (должен быть установлен [go](https://go.dev/dl/)) 
 ```
-start-backend 
+make start-backend 
 ```
 
 
