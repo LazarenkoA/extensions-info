@@ -56,6 +56,7 @@ func (s *Settings) getSettings(ctx *gin.Context) {
 		}
 	}
 
+	ctx.Header("Access-Control-Allow-Origin", "*")
 	ctx.JSON(http.StatusOK, gin.H{
 		"data": data,
 	})
