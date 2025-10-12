@@ -31,3 +31,5 @@ go.work.sum
 .idea/
 .vscode/
 */node_modules
+postgrespro-1c-data
+postgresql

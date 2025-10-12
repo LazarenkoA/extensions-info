@@ -1,22 +1,56 @@
 version: '3.8'
 
 services:
-  # Backend сервис
-  backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    ports:
-      - "8080:8080"
-    environment:
-      - PORT=8080
-      - ENVIRONMENT=development
-      - DATABASE_URL=postgres://postgres:password@db:5432/myapp?sslmode=disable
+  # Сервис миграций (запускается перед backend)
+  migrate:
+    image: golang:1.23-alpine
+    working_dir: /app
     depends_on:
       - db
-    restart: unless-stopped
+    volumes:
+      - ./backend:/app
+    entrypoint: >
+      sh -c "
+        apk add --no-cache curl bash git postgresql-client &&
+        go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest &&
+        /go/bin/migrate -path ./internal/repository/migrations -database 'postgres://postgres:password@db:5432/myapp?sslmode=disable' up
+      "
     networks:
       - app-network
+    restart: "no"
+
+ # Backend сервис
+#  backend:
+#    build:
+#      context: ./backend
+#      dockerfile: Dockerfile
+#    ports:
+#      - "8080:8080"
+#    environment:
+#      - PORT=8080
+#      - ENVIRONMENT=development
+#      - POSTGRES_URL=postgres://postgres:password@db:5432/myapp?sslmode=disable
+#      - REDIS_URL=redis://redis:6379
+#    depends_on:
+#      - db
+#      - migrate
+#    restart: unless-stopped
+#    networks:
+#      - app-network
+#    healthcheck:
+#      test: ["CMD-SHELL", "curl -f http://localhost:8080/api/v1/health || exit 1"]
+#      interval: 10s
+#      timeout: 3s
+#      retries: 3
+#      start_period: 10s
+#    deploy:
+#      resources:
+#        limits:
+#          cpus: "0.75"
+#          memory: 512M
+#        reservations:
+#          cpus: "0.25"
+#          memory: 256M
 
   # Frontend сервис
   frontend:
@@ -25,13 +59,18 @@ services:
       dockerfile: Dockerfile
     ports:
       - "3000:80"
-    depends_on:
-      - backend
+    #depends_on:
+    #  - backend
     restart: unless-stopped
     networks:
       - app-network
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 256M
 
-  # База данных PostgreSQL (для будущего использования)
+  # База данных PostgreSQL
   db:
     image: postgres:15-alpine
     environment:
@@ -41,12 +80,17 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
-      - "5432:5432"
+      - "5433:5432"
     restart: unless-stopped
     networks:
       - app-network
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 512M
 
-  # Redis для кэширования (опционально)
+  # Redis
   redis:
     image: redis:7-alpine
     ports:
@@ -54,6 +98,11 @@ services:
     restart: unless-stopped
     networks:
       - app-network
+    deploy:
+      resources:
+        limits:
+          cpus: "0.25"
+          memory: 128M
 
 volumes:
   postgres_data:

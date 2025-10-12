@@ -9,6 +9,7 @@ import (
 	"github.com/LazarenkoA/extensions-info/internal/usecase/app_settings"
 	"github.com/LazarenkoA/extensions-info/internal/usecase/configuration"
 	"github.com/LazarenkoA/extensions-info/internal/usecase/databases"
+	"github.com/LazarenkoA/extensions-info/internal/usecase/health"
 	"github.com/LazarenkoA/extensions-info/internal/usecase/jobs"
 	ws_conn "github.com/LazarenkoA/extensions-info/internal/ws"
 	"github.com/joho/godotenv"
@@ -42,11 +43,12 @@ func main() {
 	appSettings := app_settings.New(repo)
 	analyzer := onec.NewAnalyzer1C(repo)
 	job := jobs.New(repo, analyzer, ws)
+	h := health.New()
 
 	mainApp := app.NewExtensionsInfo(cfg)
 
 	go shutdown(cancel)
-	mainApp.Run(ctx, baseSettings, conf, appSettings, job, ws)
+	mainApp.Run(ctx, baseSettings, conf, appSettings, job, ws, h)
 }
 
 func shutdown(cancel context.CancelFunc) {

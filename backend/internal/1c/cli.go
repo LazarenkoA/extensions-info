@@ -3,6 +3,7 @@ package onec
 import (
 	"bytes"
 	"context"
+	"fmt"
 	"github.com/pkg/errors"
 	"golang.org/x/text/encoding/unicode"
 	"golang.org/x/text/transform"
@@ -45,6 +46,13 @@ func loadConfigurationInfo(binPath, connectionString string, login, pass string)
 		matches := re.FindStringSubmatch(connectionString)
 		if len(matches) > 1 {
 			params = append(params, "/F", matches[1])
+		}
+	}
+	if strings.HasPrefix(connectionString, "Srvr=") {
+		re := regexp.MustCompile(`(?m)Srvr="([^"]*)"[^"]*"([^"]*)`)
+		matches := re.FindStringSubmatch(connectionString)
+		if len(matches) == 3 {
+			params = append(params, "/S", fmt.Sprintf("%s/%s", matches[1], matches[2]))
 		}
 	}
 
@@ -132,6 +140,13 @@ func loadExtensionsInfo(binPath, connectionString, login, pass string) (string, 
 		matches := re.FindStringSubmatch(connectionString)
 		if len(matches) > 1 {
 			params = append(params, "/F", matches[1])
+		}
+	}
+	if strings.HasPrefix(connectionString, "Srvr=") {
+		re := regexp.MustCompile(`(?m)Srvr="([^"]*)"[^"]*"([^"]*)`)
+		matches := re.FindStringSubmatch(connectionString)
+		if len(matches) == 3 {
+			params = append(params, "/S", fmt.Sprintf("%s/%s", matches[1], matches[2]))
 		}
 	}
 
