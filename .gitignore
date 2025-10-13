@@ -33,3 +33,4 @@ go.work.sum
 */node_modules
 postgrespro-1c-data
 postgresql
+*/bin/
