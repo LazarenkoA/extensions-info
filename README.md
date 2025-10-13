@@ -25,6 +25,21 @@ docker-compose up --build -d
     ```
 * взять бинарник из [релиза](https://github.com/LazarenkoA/extensions-info/releases)
 
+для запуска бэка нужны переменные окружения
+```
+PORT="8080"
+POSTGRES_URL="postgres://postgres:password@localhost:5432/myapp?sslmode=disable"
+```
+
+### ⚠️ возможна ошибка при запуске докера
+> npm error code EIDLETIMEOUT
+> npm error Idle timeout reached for host registry.npmjs.org:443
+
+ошибка связана с блокировкой ресурса https://registry.npmjs.org. Что бы обойти ошибку нужен ВПН или попробовать
+расскоментировать строку `RUN npm config set registry https://registry.npmmirror.com` (установка зеркала)
+в файле [Dockerfile](frontend%2FDockerfile).
+
+
 #### TODO
 - сделать поддержку возможности запуска нескольких экземпляров бэка. 
 Сейчас приложение stateful из-за websocket. После поддержки stateles можно будет запускать несколько экземпляров

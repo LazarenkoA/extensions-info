@@ -7,6 +7,8 @@ WORKDIR /app
 # Копируем package.json и package-lock.json
 COPY package*.json ./
 
+# RUN npm config set registry https://registry.npmmirror.com
+
 # Устанавливаем зависимости
 RUN npm ci --only=production
 
