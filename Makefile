@@ -19,11 +19,13 @@ install:
 	cd frontend && npm install
 
 # Сборка проекта
-build:
-	@echo Сборка backend...
-	cd backend && go build -o bin/server ./cmd/server
+build: build-backend
 	@echo Сборка frontend...
 	cd frontend && npm run build
+
+build-backend:
+	@echo Сборка backend...
+	cd backend && go build -o bin/server ./cmd/server
 
 # Запуск в режиме разработки
 start:

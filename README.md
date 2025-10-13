@@ -13,11 +13,17 @@ https://github.com/user-attachments/assets/3473fda7-108a-4188-a3f4-e927ee44c10f
  ```
 docker-compose up --build -d
  ```
-и отдельно бэк (должен быть установлен [go](https://go.dev/dl/)) 
-```
-make start-backend 
-```
+и отдельно бэк 
 
+* просто запустить (должен быть установлен [go](https://go.dev/dl/)) 
+    ```
+    make start-backend 
+    ```
+* собрать бинарный файл бэка (должен быть установлен [go](https://go.dev/dl/))
+    ```
+    make build-backend
+    ```
+* взять бинарник из [релиза](https://github.com/LazarenkoA/extensions-info/releases)
 
 #### TODO
 - сделать поддержку возможности запуска нескольких экземпляров бэка. 
