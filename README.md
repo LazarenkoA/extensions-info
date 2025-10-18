@@ -29,7 +29,13 @@ docker-compose up --build -d
 ```
 PORT="8080"
 POSTGRES_URL="postgres://postgres:password@localhost:5432/myapp?sslmode=disable"
+REDIS_URL=redis://redis:6379
 ```
+Возможен запуск нескольких экземпляров back сервиса на разных портах. 
+В этом случае нужно откорретировать конфиг nginx [nginx.conf](frontend%2Fnginx.conf)
+что бы трафик балансировался на сервисы, а именно нужно добавить в `upstream backend_api` строку с портом на котором работают 
+дополнительные экземпляры бэка. 
+При запуске бэка в докере можно скейлить бэк ``docker-compose up --scale backend=2 -d``
 
 ### ⚠️ возможна ошибка при запуске докера
 > npm error code EIDLETIMEOUT
@@ -39,8 +45,3 @@ POSTGRES_URL="postgres://postgres:password@localhost:5432/myapp?sslmode=disable"
 расскоментировать строку `RUN npm config set registry https://registry.npmmirror.com` (установка зеркала)
 в файле [Dockerfile](frontend%2FDockerfile).
 
-
-#### TODO
-- сделать поддержку возможности запуска нескольких экземпляров бэка. 
-Сейчас приложение stateful из-за websocket. После поддержки stateles можно будет запускать несколько экземпляров
-`docker-compose up --scale backend=2 -d`

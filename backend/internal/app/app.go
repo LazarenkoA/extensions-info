@@ -53,7 +53,7 @@ func (e *ExtensionsInfo) Run(ctx context.Context, handlers ...UseCases) {
 		MaxHeaderBytes: 1 << 20,
 	}
 
-	log.Printf("Сервер запущен на порту %s", e.cfg.Port)
+	log.Printf("start for port %s", e.cfg.Port)
 
 	go func() {
 		<-ctx.Done()

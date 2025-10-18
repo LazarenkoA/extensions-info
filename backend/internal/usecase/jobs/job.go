@@ -24,14 +24,14 @@ type IAnalyzer interface {
 	RunAnalyzing(ctx context.Context, dbID int32) chan string
 }
 
-type IWS interface {
-	Write(msg string) error
+type IPub interface {
+	LogPush(ctx context.Context, msg string)
 }
 
 type Job struct {
 	repo       repo
 	analyzer   IAnalyzer
-	ws         IWS
+	pub        IPub
 	cronJobs   *cron.Cron
 	cronJobsID map[int]cron.EntryID
 	mx         sync.Mutex
@@ -44,11 +44,11 @@ const (
 	JobStateError      = "error"
 )
 
-func New(repo repo, analyzer IAnalyzer, ws IWS) *Job {
+func New(repo repo, analyzer IAnalyzer, pub IPub) *Job {
 	return &Job{
 		repo:       repo,
 		analyzer:   analyzer,
-		ws:         ws,
+		pub:        pub,
 		cronJobs:   cron.New(),
 		cronJobsID: make(map[int]cron.EntryID),
 	}
@@ -142,7 +142,7 @@ func (j *Job) startAnalysis(dbID int) {
 
 	go func() {
 		for log := range logs {
-			j.ws.Write(log)
+			j.pub.LogPush(context.Background(), log)
 		}
 	}()
 }

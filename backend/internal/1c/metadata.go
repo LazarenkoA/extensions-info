@@ -88,7 +88,7 @@ func (a *Analyzer1C) codeAnalyzing(confID int32) error {
 			for i, ext := range md.Extension {
 				err := filepath.WalkDir(filepath.Join(ext.PathObject, md.ObjectName), a.walk(ext.ExtensionRootPath, md, md.Extension[i].ID))
 				if err != nil {
-					log.Printf("parse error %s: %v\n", md.ObjectName, err)
+					log.Printf("parse error %s: %v", md.ObjectName, err)
 					return err
 				}
 			}

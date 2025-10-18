@@ -6,6 +6,7 @@ import "github.com/kelseyhightower/envconfig"
 type Config struct {
 	Port        string `envconfig:"PORT"`
 	DatabaseURL string `envconfig:"POSTGRES_URL"`
+	RedisHost   string `envconfig:"REDIS_HOST"`
 }
 
 // Load загружает конфигурацию из переменных окружения
