@@ -45,3 +45,49 @@ REDIS_URL=redis://redis:6379
 расскоментировать строку `RUN npm config set registry https://registry.npmmirror.com` (установка зеркала)
 в файле [Dockerfile](frontend%2FDockerfile).
 
+### Архитектура 
+
+```mermaid
+flowchart LR
+ subgraph subGraph0["Frontend (React)"]
+        UI["Web UI (React)"]
+  end
+ subgraph subGraph1["Backend (Go)"]
+        API["REST API & WebSocket"]
+        Worker@{ label: "<pre style=\"font-family:'JetBrains\">Analyzer</pre>(Выполнение задач, запуск 1С через CLI)" }
+        Cron["Scheduler"]
+  end
+ subgraph s1["1С"]
+        OneC["1C:Enterprise CLI"]
+  end
+ subgraph Database["Database"]
+        DB[("PostgreSQL")]
+  end
+ subgraph s2["Pub/Sub"]
+        Redis[("Redis Pub/Sub")]
+  end
+    UI -- REST API --> API
+    UI <-- WebSocket уведомления о прогрессе --> API
+    API -- Команда на выгрузку --> Worker
+    Cron -- Плановая выгрузка --> Worker
+    Worker -- Запуск 1С --> OneC
+    OneC -- Результаты выгрузки --> Worker
+    API -- Чтение/Запись данных --> DB
+    Worker -- Запись данных --> DB
+    Worker -- Публикует прогресс --> Redis
+    API -- Получает обновления прогресса (подписка) --> Redis
+    Redis -- Push событий о прогрессе --> API
+
+    Worker@{ shape: rect}
+    style UI fill:#61dafb,stroke:#333,stroke-width:1px
+    style API fill:#f0db4f,stroke:#333,stroke-width:1px
+    style Worker fill:#ffe599,stroke:#333,stroke-width:1px
+    style Cron fill:#fff2cc,stroke:#888,stroke-dasharray: 5 5
+    style OneC fill:#efefef,stroke:#6fa8dc,stroke-width:1.5px
+    style DB fill:#d9ead3,stroke:#38761d,stroke-width:1.5px
+    style Redis fill:#cfe2f3,stroke:#b40101,stroke-width:2px
+
+
+
+
+```
